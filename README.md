@@ -326,6 +326,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Plugin system for custom AI providers
 - [ ] Voice input support
 
+### Phase 4 🤖 (Advanced AI Agents)
+- [ ] **MCP (Model Context Protocol) Support** - Integration with external tools and data sources
+- [ ] **Project Dependency Visualization** - Interactive browser-based tree showing component/file relationships
+- [ ] **Context Window Visualization** - Graphical representation of token usage and context management
+- [ ] **Advanced Agentic Workflows** - Multi-step AI agents using MCP tools for complex tasks
+- [ ] **Background Task Agents** - Autonomous agents that incrementally work on features/UI development
+- [ ] **Automated Code Review** - AI-powered PR analysis and suggestions
+- [ ] **Smart Test Generation** - Automatic unit/integration test creation based on code changes
+- [ ] **Architecture Advisor** - AI recommendations for project structure and design patterns
+- [ ] **Performance Profiler** - Real-time performance analysis and optimization suggestions
+- [ ] **Security Scanner** - Automated vulnerability detection and remediation
+- [ ] **Documentation Generator** - Auto-generated docs from code and comments
+- [ ] **Multi-Language Translation** - Code translation between programming languages
+- [ ] **Voice-to-Code** - Speech recognition for hands-free coding
+- [ ] **Collaborative AI** - Shared AI sessions for team development
+- [ ] **CI/CD Integration** - AI-powered build and deployment automation
+
 ## 🙏 Acknowledgments
 
 - [VS Code Extension API](https://code.visualstudio.com/api) documentation
@@ -337,7 +354,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Made with ❤️ for developers who want AI assistance right in their editor.**
-
-## 🌟 Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Vinayak1337/AI-chat-vsc-extension&type=Date)](https://star-history.com/#Vinayak1337/AI-chat-vsc-extension&Date) 
