@@ -36,11 +36,63 @@ export class WorkspaceService {
 	public async getFileContent(filePath: string): Promise<string> {
 		try {
 			const uri = vscode.Uri.file(filePath);
+
+			if (this.isImageFile(filePath)) {
+				return await this.getImageAsBase64(uri);
+			}
+
 			const document = await vscode.workspace.openTextDocument(uri);
 			return document.getText();
 		} catch (error) {
 			console.error('Error reading file:', error);
 			throw new Error(`Could not read file: ${filePath}`);
+		}
+	}
+
+	public isImageFile(filePath: string): boolean {
+		const imageExtensions = [
+			'.png',
+			'.jpg',
+			'.jpeg',
+			'.gif',
+			'.bmp',
+			'.webp',
+			'.svg'
+		];
+		const ext = path.extname(filePath).toLowerCase();
+		return imageExtensions.includes(ext);
+	}
+
+	private async getImageAsBase64(uri: vscode.Uri): Promise<string> {
+		try {
+			const imageData = await vscode.workspace.fs.readFile(uri);
+			const base64 = Buffer.from(imageData).toString('base64');
+			const ext = path.extname(uri.fsPath).toLowerCase();
+
+			let mimeType = 'image/png';
+			switch (ext) {
+				case '.jpg':
+				case '.jpeg':
+					mimeType = 'image/jpeg';
+					break;
+				case '.gif':
+					mimeType = 'image/gif';
+					break;
+				case '.bmp':
+					mimeType = 'image/bmp';
+					break;
+				case '.webp':
+					mimeType = 'image/webp';
+					break;
+				case '.svg':
+					mimeType = 'image/svg+xml';
+					break;
+			}
+
+			return `data:${mimeType};base64,${base64}`;
+		} catch (error) {
+			console.error('Error reading image file:', error);
+			throw new Error(`Could not read image file: ${uri.fsPath}`);
 		}
 	}
 

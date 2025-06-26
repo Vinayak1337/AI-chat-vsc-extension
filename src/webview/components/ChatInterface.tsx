@@ -14,6 +14,7 @@ interface FileAttachmentData {
 	name: string;
 	path: string;
 	type: 'file' | 'image';
+	content?: string;
 }
 
 interface WorkspaceFile {
@@ -51,6 +52,54 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 	}, [messages]);
 
+	useEffect(() => {
+		const handlePaste = (e: ClipboardEvent) => {
+			if (!inputRef.current || document.activeElement !== inputRef.current) {
+				return;
+			}
+
+			const items = e.clipboardData?.items;
+			if (!items) return;
+
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+
+				if (item.type.indexOf('image/') === 0) {
+					e.preventDefault();
+
+					const file = item.getAsFile();
+					if (file) {
+						const reader = new FileReader();
+						reader.onload = event => {
+							const base64Data = event.target?.result as string;
+							if (base64Data) {
+								const timestamp = Date.now();
+								const fileName = `pasted-image-${timestamp}.${
+									item.type.split('/')[1]
+								}`;
+
+								setAttachments(prev => [
+									...prev,
+									{
+										name: fileName,
+										path: '',
+										type: 'image',
+										content: base64Data
+									}
+								]);
+							}
+						};
+						reader.readAsDataURL(file);
+					}
+					break;
+				}
+			}
+		};
+
+		document.addEventListener('paste', handlePaste);
+		return () => document.removeEventListener('paste', handlePaste);
+	}, []);
+
 	const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		const value = e.target.value;
 		const cursorPos = e.target.selectionStart;
@@ -81,6 +130,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 		}
 	};
 
+	const isImageFile = (filename: string): boolean => {
+		const imageExtensions = [
+			'.png',
+			'.jpg',
+			'.jpeg',
+			'.gif',
+			'.bmp',
+			'.webp',
+			'.svg'
+		];
+		const ext = filename.toLowerCase().split('.').pop();
+		return ext ? imageExtensions.includes(`.${ext}`) : false;
+	};
+
 	const handleFileSelect = (file: WorkspaceFile) => {
 		const beforeCursor = inputValue.substring(0, cursorPosition);
 		const afterCursor = inputValue.substring(cursorPosition);
@@ -92,12 +155,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 			setInputValue(newValue);
 
 			if (!attachments.find(att => att.path === file.path)) {
+				const fileType = isImageFile(file.name) ? 'image' : 'file';
 				setAttachments(prev => [
 					...prev,
 					{
 						name: file.name,
 						path: file.path,
-						type: 'file'
+						type: fileType
 					}
 				]);
 			}
@@ -168,7 +232,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 								key={index}
 								className='file-suggestion'
 								onClick={() => handleFileSelect(file)}>
-								<span className='file-icon'>📄</span>
+								<span className='file-icon'>
+									{isImageFile(file.name) ? '🖼️' : '📄'}
+								</span>
 								<div className='file-info'>
 									<div className='file-name'>{file.name}</div>
 									<div className='file-path'>{file.relativePath}</div>
@@ -187,7 +253,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 						placeholder={
 							disabled
 								? 'Please configure your API key first...'
-								: 'Type your message... Use @filename to attach files'
+								: 'Type your message... Use @filename to attach files or paste images directly'
 						}
 						className='message-input'
 						disabled={disabled}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 
@@ -20,7 +20,6 @@ interface MessageBubbleProps {
 	message: Message;
 }
 
-// Configure marked for syntax highlighting
 marked.setOptions({
 	highlight: function (code: string, lang: string) {
 		if (lang && hljs.getLanguage(lang)) {
@@ -51,8 +50,56 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
 		}
 	};
 
+	const copyToClipboard = async (text: string) => {
+		try {
+			await navigator.clipboard.writeText(text);
+		} catch (err) {
+			console.error('Failed to copy text: ', err);
+		}
+	};
+
+	const addCopyButtons = () => {
+		const messageElement = document.querySelector(
+			`[data-message-id="${message.id}"]`
+		);
+		if (!messageElement) return;
+
+		const codeBlocks = messageElement.querySelectorAll('pre > code');
+
+		codeBlocks.forEach(codeBlock => {
+			const preElement = codeBlock.parentElement as HTMLPreElement;
+			if (preElement && !preElement.querySelector('.copy-button')) {
+				const copyButton = document.createElement('button');
+				copyButton.className = 'copy-button';
+				copyButton.innerHTML = '📋';
+				copyButton.title = 'Copy code';
+
+				copyButton.addEventListener('click', e => {
+					e.preventDefault();
+					const codeText = codeBlock.textContent || '';
+					copyToClipboard(codeText);
+
+					copyButton.innerHTML = '✅';
+					setTimeout(() => {
+						copyButton.innerHTML = '📋';
+					}, 1000);
+				});
+
+				preElement.style.position = 'relative';
+				preElement.appendChild(copyButton);
+			}
+		});
+	};
+
+	useEffect(() => {
+		const timer = setTimeout(addCopyButtons, 100);
+		return () => clearTimeout(timer);
+	}, [message.content]);
+
 	return (
-		<div className={`message-bubble ${message.sender}`}>
+		<div
+			className={`message-bubble ${message.sender}`}
+			data-message-id={message.id}>
 			<div className='message-header'>
 				<span className='sender'>
 					{message.sender === 'user' ? 'You' : 'AI Assistant'}

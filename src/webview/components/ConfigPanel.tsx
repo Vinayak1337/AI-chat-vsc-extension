@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface ConfigPanelProps {
 	onSave: () => void;
@@ -99,6 +99,61 @@ const PROVIDERS: LLMProvider[] = [
 				description: 'Previous generation GPT-4 model'
 			}
 		]
+	},
+	{
+		id: 'gemini',
+		name: 'Google Gemini',
+		description: 'Gemini 2.5 Pro and Flash models',
+		models: [
+			{
+				id: 'gemini-2.5-pro',
+				name: 'Gemini 2.5 Pro',
+				tpm: '1,000,000',
+				rpm: '360',
+				rpd: '10,000',
+				description: 'Most advanced reasoning model with thinking capabilities'
+			},
+			{
+				id: 'gemini-2.5-flash',
+				name: 'Gemini 2.5 Flash',
+				tpm: '1,000,000',
+				rpm: '1,000',
+				rpd: '50,000',
+				description: 'Best price-performance with thinking capabilities'
+			},
+			{
+				id: 'gemini-2.0-flash-001',
+				name: 'Gemini 2.0 Flash',
+				tpm: '1,000,000',
+				rpm: '1,000',
+				rpd: '50,000',
+				description: 'Next-gen features with superior speed and tool use'
+			},
+			{
+				id: 'gemini-2.0-flash-lite-001',
+				name: 'Gemini 2.0 Flash-Lite',
+				tpm: '1,000,000',
+				rpm: '1,000',
+				rpd: '50,000',
+				description: 'Cost-efficient and fast Flash model'
+			},
+			{
+				id: 'gemini-1.5-pro-002',
+				name: 'Gemini 1.5 Pro (Legacy)',
+				tpm: '1,000,000',
+				rpm: '360',
+				rpd: '10,000',
+				description: 'Previous generation Pro model'
+			},
+			{
+				id: 'gemini-1.5-flash-002',
+				name: 'Gemini 1.5 Flash (Legacy)',
+				tpm: '1,000,000',
+				rpm: '1,000',
+				rpd: '50,000',
+				description: 'Previous generation Flash model'
+			}
+		]
 	}
 ];
 
@@ -112,11 +167,49 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
 	const [selectedModel, setSelectedModel] = useState('gpt-4.1-mini');
 	const [isLoading, setSaving] = useState(false);
 	const [error, setError] = useState('');
+	const [isLoadingConfig, setIsLoadingConfig] = useState(true);
 
 	const currentProvider = PROVIDERS.find(p => p.id === selectedProvider);
 	const currentModel = currentProvider?.models.find(
 		m => m.id === selectedModel
 	);
+
+	useEffect(() => {
+		const handleMessage = (event: MessageEvent) => {
+			const message = event.data;
+			if (message.type === 'currentConfig') {
+				const config = message.config;
+				setSelectedProvider(config.provider || 'openai');
+				setSelectedModel(config.model || 'gpt-4.1-mini');
+
+				// Set the appropriate API key based on the provider
+				if (config.provider === 'openai' && config.openaiApiKey) {
+					setApiKey(config.openaiApiKey);
+				} else if (config.provider === 'gemini' && config.geminiApiKey) {
+					setApiKey(config.geminiApiKey);
+				}
+
+				setIsLoadingConfig(false);
+				window.removeEventListener('message', handleMessage);
+			}
+		};
+
+		window.addEventListener('message', handleMessage);
+
+		vscode.postMessage({
+			type: 'getConfig'
+		});
+
+		const timeout = setTimeout(() => {
+			window.removeEventListener('message', handleMessage);
+			setIsLoadingConfig(false);
+		}, 3000);
+
+		return () => {
+			window.removeEventListener('message', handleMessage);
+			clearTimeout(timeout);
+		};
+	}, [vscode]);
 
 	const handleSave = async () => {
 		if (!apiKey.trim()) {
@@ -128,20 +221,23 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
 		setError('');
 
 		try {
+			const apiKeyField =
+				selectedProvider === 'openai' ? 'openaiApiKey' : 'geminiApiKey';
 			vscode.postMessage({
-				type: 'saveApiKey',
+				type: 'saveConfig',
 				apiKey: apiKey.trim(),
+				apiKeyField: apiKeyField,
 				provider: selectedProvider,
 				model: selectedModel
 			});
 
 			const handleMessage = (event: MessageEvent) => {
 				const message = event.data;
-				if (message.type === 'apiKeySaved') {
+				if (message.type === 'configSaved') {
 					if (message.success) {
 						onSave();
 					} else {
-						setError(message.error || 'Failed to save API key');
+						setError(message.error || 'Failed to save configuration');
 						setSaving(false);
 					}
 					window.removeEventListener('message', handleMessage);
@@ -161,13 +257,57 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
 		}
 	};
 
-	const handleProviderChange = (providerId: string) => {
+	const handleProviderChange = async (providerId: string) => {
 		setSelectedProvider(providerId);
+
+		const handleMessage = (event: MessageEvent) => {
+			const message = event.data;
+			if (message.type === 'currentConfig') {
+				const config = message.config;
+				if (providerId === 'openai' && config.openaiApiKey) {
+					setApiKey(config.openaiApiKey);
+				} else if (providerId === 'gemini' && config.geminiApiKey) {
+					setApiKey(config.geminiApiKey);
+				} else {
+					setApiKey('');
+				}
+				window.removeEventListener('message', handleMessage);
+			}
+		};
+
+		window.addEventListener('message', handleMessage);
+		vscode.postMessage({ type: 'getConfig' });
+
 		const provider = PROVIDERS.find(p => p.id === providerId);
 		if (provider && provider.models.length > 0) {
 			setSelectedModel(provider.models[0].id);
 		}
+
+		setTimeout(() => {
+			window.removeEventListener('message', handleMessage);
+		}, 2000);
 	};
+
+	if (isLoadingConfig) {
+		return (
+			<div className='config-panel'>
+				<div className='config-header'>
+					<h3>🔧 Configure AI Chat Assistant</h3>
+					<p>Loading current configuration...</p>
+				</div>
+				<div className='config-content'>
+					<div className='loading-indicator'>
+						<div className='typing-animation'>
+							<span></span>
+							<span></span>
+							<span></span>
+						</div>
+						<span>Loading...</span>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className='config-panel'>
@@ -248,6 +388,17 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
 											target='_blank'
 											rel='noopener noreferrer'>
 											OpenAI Platform
+										</a>
+									</>
+								)}
+								{selectedProvider === 'gemini' && (
+									<>
+										Get your API key from{' '}
+										<a
+											href='https://makersuite.google.com/app/apikey'
+											target='_blank'
+											rel='noopener noreferrer'>
+											Google AI Studio
 										</a>
 									</>
 								)}

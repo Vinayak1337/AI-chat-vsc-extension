@@ -12,6 +12,7 @@ interface FileAttachmentData {
 	name: string;
 	path: string;
 	type: 'file' | 'image';
+	content?: string;
 }
 
 interface WorkspaceFile {

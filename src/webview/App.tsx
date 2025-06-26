@@ -10,6 +10,8 @@ interface AppProps {
 const App: React.FC<AppProps> = ({ vscode }) => {
 	const [showConfig, setShowConfig] = useState(false);
 	const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
+	const [currentModel, setCurrentModel] = useState<string>('');
+	const [currentProvider, setCurrentProvider] = useState<string>('');
 
 	const {
 		messages,
@@ -20,17 +22,64 @@ const App: React.FC<AppProps> = ({ vscode }) => {
 	} = useChat(vscode);
 
 	useEffect(() => {
+		const handleMessage = (event: MessageEvent) => {
+			const message = event.data;
+			if (message.type === 'currentConfig') {
+				const config = message.config;
+				const provider = config.provider || 'openai';
+				const model = config.model || 'gpt-4.1-mini';
+				const hasApiKey =
+					(provider === 'openai' && config.openaiApiKey) ||
+					(provider === 'gemini' && config.geminiApiKey);
+
+				setApiKeyConfigured(!!hasApiKey);
+				setCurrentProvider(provider);
+				setCurrentModel(model);
+				window.removeEventListener('message', handleMessage);
+			}
+		};
+
 		const checkApiKey = () => {
-			setApiKeyConfigured(false);
+			window.addEventListener('message', handleMessage);
+
+			vscode.postMessage({
+				type: 'getConfig'
+			});
+
+			setTimeout(() => {
+				window.removeEventListener('message', handleMessage);
+			}, 3000);
 		};
 
 		checkApiKey();
 		loadWorkspaceFiles();
-	}, [loadWorkspaceFiles]);
+	}, [loadWorkspaceFiles, vscode]);
 
 	const handleConfigSaved = () => {
 		setApiKeyConfigured(true);
 		setShowConfig(false);
+
+		setTimeout(() => {
+			const handleMessage = (event: MessageEvent) => {
+				const message = event.data;
+				if (message.type === 'currentConfig') {
+					const config = message.config;
+					const provider = config.provider || 'openai';
+					const model = config.model || 'gpt-4.1-mini';
+
+					setCurrentProvider(provider);
+					setCurrentModel(model);
+					window.removeEventListener('message', handleMessage);
+				}
+			};
+
+			window.addEventListener('message', handleMessage);
+			vscode.postMessage({ type: 'getConfig' });
+
+			setTimeout(() => {
+				window.removeEventListener('message', handleMessage);
+			}, 3000);
+		}, 100);
 	};
 
 	if (showConfig) {
@@ -46,7 +95,17 @@ const App: React.FC<AppProps> = ({ vscode }) => {
 	return (
 		<div className='app'>
 			<div className='app-header'>
-				<h2>AI Chat Assistant</h2>
+				<div className='header-title'>
+					<h2>AI Chat Assistant</h2>
+					{currentModel && (
+						<div className='model-info'>
+							<span className='model-provider'>
+								{currentProvider === 'openai' ? 'OpenAI' : 'Gemini'}
+							</span>
+							<span className='model-name'>{currentModel}</span>
+						</div>
+					)}
+				</div>
 				<div className='header-actions'>
 					<button
 						className='config-button'

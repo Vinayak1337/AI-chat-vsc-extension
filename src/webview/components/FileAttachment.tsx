@@ -4,6 +4,7 @@ interface FileAttachmentData {
 	name: string;
 	path: string;
 	type: 'file' | 'image';
+	content?: string;
 }
 
 interface FileAttachmentProps {
@@ -33,11 +34,15 @@ const FileAttachment: React.FC<FileAttachmentProps> = ({ file, onRemove }) => {
 		return `${nameWithoutExt.substring(0, maxNameLength)}...${ext}`;
 	};
 
+	const isPastedImage = file.content && !file.path;
+	const tooltipText = isPastedImage ? `${file.name} (Pasted image)` : file.name;
+
 	return (
 		<div className='file-attachment'>
 			<span className='file-icon'>{getFileIcon(file.type)}</span>
-			<span className='file-name' title={file.name}>
+			<span className='file-name' title={tooltipText}>
 				{truncateFileName(file.name)}
+				{isPastedImage && <small> (pasted)</small>}
 			</span>
 			<button
 				className='remove-button'

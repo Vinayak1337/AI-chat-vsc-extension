@@ -40,12 +40,16 @@ export class ChatProvider implements vscode.WebviewViewProvider {
 					case 'getFileContent':
 						await this._handleGetFileContent(message.filePath);
 						break;
-					case 'saveApiKey':
-						await this._handleSaveApiKey(
+					case 'saveConfig':
+						await this._handleSaveConfig(
 							message.apiKey,
+							message.apiKeyField,
 							message.provider,
 							message.model
 						);
+						break;
+					case 'getConfig':
+						await this._handleGetConfig();
 						break;
 				}
 			},
@@ -64,7 +68,11 @@ export class ChatProvider implements vscode.WebviewViewProvider {
 		try {
 			const processedAttachments = await Promise.all(
 				attachments.map(async attachment => {
-					if (attachment.type === 'file') {
+					if (attachment.content) {
+						return attachment;
+					}
+
+					if (attachment.type === 'file' || attachment.type === 'image') {
 						const fileContent = await this._workspaceService.getFileContent(
 							attachment.path
 						);
@@ -121,24 +129,32 @@ export class ChatProvider implements vscode.WebviewViewProvider {
 		}
 	}
 
-	private async _handleSaveApiKey(
+	private async _handleSaveConfig(
 		apiKey: string,
+		apiKeyField: string,
 		provider: string,
 		model?: string
 	) {
 		try {
 			const config = vscode.workspace.getConfiguration('aiChat');
 
-			console.log('Saving API key and model:', {
+			console.log('Saving configuration:', {
 				provider: provider,
+				apiKeyField: apiKeyField,
 				apiKeyLength: apiKey.length,
 				apiKeyStart: apiKey.substring(0, 3),
 				model: model
 			});
 
 			await config.update(
-				`${provider}ApiKey`,
+				apiKeyField,
 				apiKey,
+				vscode.ConfigurationTarget.Global
+			);
+
+			await config.update(
+				'provider',
+				provider,
 				vscode.ConfigurationTarget.Global
 			);
 
@@ -146,25 +162,54 @@ export class ChatProvider implements vscode.WebviewViewProvider {
 				await config.update('model', model, vscode.ConfigurationTarget.Global);
 			}
 
-			const savedApiKey = config.get<string>(`${provider}ApiKey`);
+			const savedApiKey = config.get<string>(apiKeyField);
+			const savedProvider = config.get<string>('provider');
 			const savedModel = config.get<string>('model');
 			console.log('Verification - Saved values:', {
 				apiKeySaved: savedApiKey
 					? `${savedApiKey.substring(0, 3)}***${savedApiKey.slice(-4)}`
 					: 'Not found',
+				providerSaved: savedProvider,
 				modelSaved: savedModel
 			});
 
 			this._view?.webview.postMessage({
-				type: 'apiKeySaved',
+				type: 'configSaved',
 				success: true
 			});
 		} catch (error) {
-			console.error('Error saving API key:', error);
+			console.error('Error saving configuration:', error);
 			this._view?.webview.postMessage({
-				type: 'apiKeySaved',
+				type: 'configSaved',
 				success: false,
 				error: error instanceof Error ? error.message : 'Unknown error'
+			});
+		}
+	}
+
+	private async _handleGetConfig() {
+		try {
+			const config = vscode.workspace.getConfiguration('aiChat');
+
+			const provider = config.get<string>('provider') || 'openai';
+			const model = config.get<string>('model') || 'gpt-4.1-mini';
+			const openaiApiKey = config.get<string>('openaiApiKey') || '';
+			const geminiApiKey = config.get<string>('geminiApiKey') || '';
+
+			this._view?.webview.postMessage({
+				type: 'currentConfig',
+				config: {
+					provider,
+					model,
+					openaiApiKey,
+					geminiApiKey
+				}
+			});
+		} catch (error) {
+			console.error('Error getting configuration:', error);
+			this._view?.webview.postMessage({
+				type: 'error',
+				message: 'Failed to load configuration'
 			});
 		}
 	}

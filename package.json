@@ -42,14 +42,28 @@
         "configuration": {
             "title": "AI Chat Assistant",
             "properties": {
+                "aiChat.provider": {
+                    "type": "string",
+                    "default": "openai",
+                    "enum": [
+                        "openai",
+                        "gemini"
+                    ],
+                    "description": "AI provider to use for chat functionality"
+                },
                 "aiChat.openaiApiKey": {
                     "type": "string",
                     "default": "",
                     "description": "OpenAI API Key for chat functionality"
                 },
+                "aiChat.geminiApiKey": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Google Gemini API Key for chat functionality"
+                },
                 "aiChat.model": {
                     "type": "string",
-                    "default": "gpt-3.5-turbo",
+                    "default": "gpt-4.1-mini",
                     "description": "AI model to use for chat"
                 }
             }
@@ -85,6 +99,7 @@
         "webpack-cli": "^5.0.1"
     },
     "dependencies": {
+        "@google/generative-ai": "^0.24.1",
         "highlight.js": "^11.8.0",
         "marked": "^5.0.0",
         "openai": "^4.0.0",
