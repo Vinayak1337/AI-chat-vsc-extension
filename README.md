@@ -1,8 +1,11 @@
 # AI Chat Assistant - VS Code Extension
 
-A powerful Visual Studio Code extension that integrates a React-based AI chat interface directly into your workspace. Chat with AI models while having full context of your codebase, attach files using `@filename` syntax, and generate code seamlessly.
+A powerful Visual Studio Code extension that integrates a React-based AI chat interface directly into your workspace. Chat with AI models while having full context of your codebase, attach files using `@filename` syntax, analyze images, and generate code seamlessly.
 
-![AI Chat Assistant Demo](media/demo.gif)
+![AI Chat Assistant](https://img.shields.io/badge/VS%20Code-Extension-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-82.2%25-blue)
+![React](https://img.shields.io/badge/React-18-61dafb)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 ## 🚀 Quick Start
 
@@ -59,40 +62,61 @@ Analyze this UI mockup @design.png and suggest improvements
 - **Live model display** - Current provider and model shown in the chat header
 - **Real-time updates** - Model info updates when you change configuration
 
-## 🚀 Features
+## 🖼️ Image Support
 
-### 💬 **Intelligent Chat Interface**
-- Clean, modern React-based UI integrated into VS Code
-- Support for markdown formatting and syntax-highlighted code blocks
-- Real-time chat with AI models (OpenAI GPT-4, Google Gemini 2.5)
-- Persistent chat history during your session
-- Multi-provider support with seamless switching
+Both OpenAI and Gemini models support multimodal image analysis:
 
-### 📎 **Smart File Attachment**
-- Use `@filename` syntax to attach files from your workspace
-- Auto-complete suggestions as you type
-- Support for multiple file attachments per message
-- Contextual code analysis with attached files
+### Supported Image Formats
+- PNG, JPG/JPEG, GIF, BMP, WebP, SVG
 
-### 🔧 **Easy Configuration**
-- Built-in API key management with secure storage
-- Support for multiple AI providers (OpenAI and Google Gemini)
-- Comprehensive model selection including latest Gemini 2.5 models
-- One-click configuration panel with provider switching
+### How to Use
 
-### 🎨 **VS Code Integration**
-- Seamless integration with VS Code's native theming
-- Responsive design that works in side panels
-- Follows VS Code UI/UX patterns
-- Command palette integration
+**File Attachments:**
+1. Type `@` followed by your image filename
+2. Select the image from the autocomplete dropdown
+3. The image will appear with a 🖼️ icon
+4. Send your message with the image attached
+
+**Copy-Paste Images:**
+1. Copy an image to your clipboard (screenshot, browser image, etc.)
+2. Click in the chat input field
+3. Press `Ctrl+V` (or `Cmd+V` on Mac) to paste
+4. The image will automatically appear as an attachment with "(pasted)" label
+5. Send your message with the pasted image
+
+### Example Use Cases
+- **UI/UX Analysis**: "What improvements can you suggest for this design? @mockup.png"
+- **Code Screenshots**: "What's wrong with this error? @error-screenshot.png"
+- **Diagrams**: "Explain this architecture diagram @system-design.png"
+- **Data Visualization**: "Analyze the trends in this chart @sales-chart.png"
+
+### Vision Capabilities
+- **OpenAI GPT-4**: Advanced image understanding with detailed analysis
+- **Gemini 2.5 Pro/Flash**: Native multimodal capabilities with excellent visual reasoning
+- **Automatic processing**: Images are automatically converted to the optimal format for each provider
 
 ## 📦 Installation
 
+### From VS Code Marketplace
+1. Open VS Code
+2. Go to Extensions (Ctrl+Shift+X)
+3. Search for "AI Chat Assistant"
+4. Click Install
 
 ### From Source
-1. Clone this repository
-2. Run `npm install`
-3. Run `npm run compile`
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/Vinayak1337/AI-chat-vsc-extension.git
+   cd AI-chat-vsc-extension
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Compile the extension:
+   ```bash
+   npm run compile
+   ```
 4. Press F5 to launch extension in Development Host
 
 ## 🛠️ Setup
@@ -168,18 +192,24 @@ Ask the AI to generate or modify code:
 ### Supported Models
 
 **OpenAI Models:**
-- **GPT-4.1** - Latest GPT-4 model with improved capabilities
-- **GPT-4.1 Mini** - Faster, more cost-effective GPT-4.1 variant
-- **GPT-4o** - Optimized GPT-4 for better performance
-- **GPT-4o Mini** - Compact version of GPT-4o
-- **GPT-3.5 Turbo (Legacy)** - Previous generation model
+- **GPT-4.1** - Latest GPT-4 model with improved capabilities (10K TPM, 3 RPM, 200 RPD, 900K TPD)
+- **GPT-4.1 Mini** - Faster, more cost-effective GPT-4.1 variant (60K TPM, 3 RPM, 200 RPD, 200K TPD)
+- **GPT-4.1 Nano** - Ultra-fast, lightweight GPT-4.1 variant (60K TPM, 3 RPM, 200 RPD, 200K TPD)
+- **GPT-4o** - Optimized GPT-4 for better performance (10K TPM, 3 RPM, 200 RPD, 90K TPD)
+- **GPT-4o Mini** - Compact version of GPT-4o (60K TPM, 3 RPM, 200 RPD, 200K TPD)
+- **GPT-4o Mini TTS** - GPT-4o Mini with text-to-speech capabilities (200 RPD)
+- **GPT-3.5 Turbo (Legacy)** - Previous generation model (90K TPM, 3.5K RPM, Unlimited RPD)
+- **GPT-4 (Legacy)** - Previous generation GPT-4 model (10K TPM, 500 RPM, Unlimited RPD)
 
 **Google Gemini Models:**
-- **Gemini 2.5 Pro** - Most advanced reasoning model with thinking capabilities
-- **Gemini 2.5 Flash** - Best price-performance with thinking capabilities
-- **Gemini 2.0 Flash** - Next-gen features with superior speed and tool use
-- **Gemini 2.0 Flash-Lite** - Cost-efficient and fast Flash model
-- **Gemini 1.5 Pro/Flash (Legacy)** - Previous generation models
+- **Gemini 2.5 Pro** - Most advanced reasoning model with thinking capabilities (1M TPM, 360 RPM, 10K RPD)
+- **Gemini 2.5 Flash** - Best price-performance with thinking capabilities (1M TPM, 1K RPM, 50K RPD)
+- **Gemini 2.0 Flash** - Next-gen features with superior speed and tool use (1M TPM, 1K RPM, 50K RPD)
+- **Gemini 2.0 Flash-Lite** - Cost-efficient and fast Flash model (1M TPM, 1K RPM, 50K RPD)
+- **Gemini 1.5 Pro (Legacy)** - Previous generation Pro model (1M TPM, 360 RPM, 10K RPD)
+- **Gemini 1.5 Flash (Legacy)** - Previous generation Flash model (1M TPM, 1K RPM, 50K RPD)
+
+*TPM = Tokens Per Minute, RPM = Requests Per Minute, RPD = Requests Per Day, TPD = Tokens Per Day*
 
 ## 🏗️ Architecture
 
@@ -188,8 +218,7 @@ Ask the AI to generate or modify code:
 src/
 ├── extension.ts              # Main extension entry point
 ├── providers/
-│   ├── ChatProvider.ts       # WebView provider
-│   └── FileProvider.ts       # File attachment handler
+│   └── ChatProvider.ts       # WebView provider
 ├── services/
 │   ├── AIService.ts          # AI model integration
 │   └── WorkspaceService.ts   # VS Code workspace integration
@@ -217,8 +246,8 @@ src/
 ### Setup Development Environment
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd vscode-ai-chat-extension
+git clone https://github.com/Vinayak1337/AI-chat-vsc-extension.git
+cd AI-chat-vsc-extension
 
 # Install dependencies
 npm install
@@ -244,10 +273,12 @@ npm run package
 
 ## 🔒 Security & Privacy
 
-- **API Keys**: Stored securely in VS Code's configuration
+- **API Keys**: Stored securely in VS Code's configuration using `vscode.ConfigurationTarget.Global`
 - **Data Privacy**: Your code and conversations never leave your machine except for API calls
 - **No Telemetry**: Extension doesn't collect or transmit usage data
 - **Local Processing**: All file reading and workspace operations happen locally
+- **Persistent Storage**: Keys persist between VS Code sessions and reloads
+- **Auto-detection**: Extension automatically detects saved keys on startup
 
 ## 🤝 Contributing
 
@@ -266,35 +297,40 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-repo/discussions)
-- **Email**: support@your-domain.com
+- **Issues**: [GitHub Issues](https://github.com/Vinayak1337/AI-chat-vsc-extension/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Vinayak1337/AI-chat-vsc-extension/discussions)
 
 ## 🗺️ Roadmap
 
-### MVP (Current)
+### MVP (Current) ✅
 - ✅ Basic chat interface
-- ✅ OpenAI integration
+- ✅ OpenAI and Google Gemini integration
 - ✅ File attachment with @syntax
+- ✅ Image analysis (multimodal AI)
+- ✅ Copy-paste image support
+- ✅ Code block copy buttons
+- ✅ Live model display
 - ✅ VS Code theming
 
-### Phase 2
-- [x] Multiple AI provider support (OpenAI and Google Gemini)
-- [ ] Additional providers (Anthropic Claude, etc.)
+### Phase 2 🚧
+- [ ] Additional AI providers (Anthropic Claude, Azure OpenAI)
 - [ ] Code generation with direct insertion
 - [ ] Chat history persistence
 - [ ] Custom prompts and templates
+- [ ] Workspace indexing for better context
 
-### Phase 3
+### Phase 3 🔮
 - [ ] Code refactoring assistance
 - [ ] Project-wide analysis
 - [ ] Integration with Git for commit message generation
 - [ ] Plugin system for custom AI providers
+- [ ] Voice input support
 
 ## 🙏 Acknowledgments
 
-- VS Code Extension API documentation
-- OpenAI for providing powerful language models
+- [VS Code Extension API](https://code.visualstudio.com/api) documentation
+- [OpenAI](https://openai.com/) for providing powerful language models
+- [Google Gemini](https://ai.google.dev/) for advanced multimodal AI capabilities
 - React and TypeScript communities
 - All contributors and users of this extension
 
@@ -302,58 +338,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ for developers who want AI assistance right in their editor.**
 
-## 🖼️ Image Support
+## 🌟 Star History
 
-Both OpenAI and Gemini models support image analysis:
-
-### Supported Image Formats
-- PNG, JPG/JPEG, GIF, BMP, WebP, SVG
-
-### How to Use
-**File Attachments:**
-1. Type `@` followed by your image filename
-2. Select the image from the autocomplete dropdown  
-3. The image will appear with a 🖼️ icon
-4. Send your message with the image attached
-
-**Copy-Paste Images:**
-1. Copy an image to your clipboard (screenshot, browser image, etc.)
-2. Click in the chat input field
-3. Press `Ctrl+V` (or `Cmd+V` on Mac) to paste
-4. The image will automatically appear as an attachment with "(pasted)" label
-5. Send your message with the pasted image
-
-### Example Use Cases
-- **UI/UX Analysis**: "What improvements can you suggest for this design? @mockup.png"
-- **Code Screenshots**: "What's wrong with this error? @error-screenshot.png"  
-- **Diagrams**: "Explain this architecture diagram @system-design.png"
-- **Data Visualization**: "Analyze the trends in this chart @sales-chart.png"
-
-### Vision Capabilities
-- **OpenAI GPT-4**: Advanced image understanding with detailed analysis
-- **Gemini 2.5 Pro/Flash**: Native multimodal capabilities with excellent visual reasoning
-- **Automatic processing**: Images are automatically converted to the optimal format for each provider
-
-## 🔧 Configuration
-
-### API Keys
-Your API keys are stored securely in VS Code's workspace configuration using `vscode.ConfigurationTarget.Global`. This means:
-- ✅ **Persistent storage** - Keys persist between VS Code sessions and reloads
-- ✅ **Secure** - Keys are stored in VS Code's encrypted configuration
-- ✅ **Local only** - Keys never leave your machine
-- ✅ **Per-provider** - Separate keys for OpenAI and Gemini
-- ✅ **Auto-detection** - Extension automatically detects saved keys on startup
-
-**Note**: If the extension shows "API Key Required" after restart, wait a moment for auto-detection or click the ⚙️ settings icon to verify your saved configuration.
-
-### Getting API Keys
-
-#### OpenAI
-1. Visit [OpenAI Platform](https://platform.openai.com/api-keys)
-2. Create a new API key
-3. Copy and paste into the extension configuration
-
-#### Google Gemini  
-1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create a new API key
-3. Copy and paste into the extension configuration 
+[![Star History Chart](https://api.star-history.com/svg?repos=Vinayak1337/AI-chat-vsc-extension&type=Date)](https://star-history.com/#Vinayak1337/AI-chat-vsc-extension&Date) 
