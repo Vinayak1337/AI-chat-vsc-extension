@@ -32,11 +32,6 @@ A powerful Visual Studio Code extension that integrates a React-based AI chat in
 
 ## 📦 Installation
 
-### From VS Code Marketplace
-1. Open VS Code
-2. Go to Extensions (Ctrl+Shift+X)
-3. Search for "AI Chat Assistant"
-4. Click Install
 
 ### From Source
 1. Clone this repository
